@@ -77,30 +77,16 @@ jobs:
 
 ## Pre-Commit Hooks with Claude Code
 
-Install Husky and add a Claude-powered pre-commit check:
-
-```bash
-npm install -D husky
-npx husky init
-```
-
-Create `.husky/pre-commit`:
+Install Husky (`npm install -D husky && npx husky init`) and create `.husky/pre-commit`:
 
 ```bash
 #!/bin/sh
 npx lint-staged
-
-STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx|js|jsx)$')
+STAGED=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(ts|tsx)$')
 if [ -n "$STAGED" ]; then
-  git diff --cached | claude -p "Review this diff for critical bugs and security
-  issues only. Ignore style. Respond PASS if clean or FAIL with explanation." \
-  > /tmp/claude-review.txt
-
-  if grep -q "FAIL" /tmp/claude-review.txt; then
-    echo "Claude Code found issues:"
-    cat /tmp/claude-review.txt
-    exit 1
-  fi
+  git diff --cached | claude -p "Review for critical bugs and security issues
+  only. Respond PASS or FAIL with explanation." > /tmp/claude-review.txt
+  grep -q "FAIL" /tmp/claude-review.txt && { cat /tmp/claude-review.txt; exit 1; }
 fi
 ```
 

@@ -7,54 +7,22 @@
 
 ## Workflow 1: Feature Development
 
-Step-by-step workflow for building a new feature from start to finish.
-
 ```
-Step 1 — Plan
-> "Read the codebase and explain how [existing feature] works.
->  Then propose an implementation plan for [new feature] with file changes listed."
-
-Step 2 — Implement
-> "Implement the plan from above. Create the necessary files and modify
->  existing ones. Follow the conventions in CLAUDE.md."
-
-Step 3 — Test
-> "Write unit tests for the new feature. Cover happy path, edge cases,
->  and error scenarios. Run the tests and fix any failures."
-
-Step 4 — Review
-> "Review all changes you made. Check for bugs, security issues,
->  missing error handling, and adherence to project conventions."
-
-Step 5 — Commit
-> "Create a well-structured commit with a conventional commit message.
->  Group related changes logically."
+Step 1 — Plan:      "Read the codebase. Propose an implementation plan for [feature] with file changes."
+Step 2 — Implement: "Implement the plan. Follow CLAUDE.md conventions."
+Step 3 — Test:      "Write unit tests covering happy path, edge cases, errors. Run and fix failures."
+Step 4 — Review:    "Review all changes for bugs, security issues, missing error handling."
+Step 5 — Commit:    "Create a commit with a conventional commit message."
 ```
 
 ## Workflow 2: Bug Fixing
 
-Systematic approach to diagnosing and fixing bugs.
-
 ```
-Step 1 — Reproduce
-> "Read the bug report: [paste bug]. Find the relevant code and explain
->  what is causing this behavior."
-
-Step 2 — Root Cause
-> "Trace the execution path and identify the root cause. Show me the
->  specific lines of code responsible."
-
-Step 3 — Fix
-> "Fix the bug. Make the minimal change necessary to resolve the issue
->  without side effects."
-
-Step 4 — Verify
-> "Write a regression test that would have caught this bug.
->  Run all related tests to confirm nothing is broken."
-
-Step 5 — Document
-> "Add a code comment explaining why this fix was needed if the logic
->  is non-obvious. Update the changelog if we have one."
+Step 1 — Reproduce:  "Read bug report: [paste]. Find relevant code and explain the cause."
+Step 2 — Root Cause: "Trace execution path. Identify the specific lines responsible."
+Step 3 — Fix:        "Fix with minimal change. No side effects."
+Step 4 — Verify:     "Write a regression test. Run all related tests."
+Step 5 — Document:   "Add a code comment if the fix is non-obvious."
 ```
 
 ## Workflow 3: Code Review Assistant

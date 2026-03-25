@@ -98,15 +98,8 @@ project already uses.
 Self-review before submitting:
 
 ```
-Review the changes you just made. Check they follow CONTRIBUTING.md
-conventions, include tests, and do not introduce breaking changes.
-```
-
-Check for documentation requirements:
-
-```
-Does this project require doc updates for new features? If so, update
-the relevant docs to mention the rate limiting behavior.
+Review the changes. Check they follow CONTRIBUTING.md, include tests,
+and do not break anything. Update docs if the project requires it.
 ```
 
 ---
