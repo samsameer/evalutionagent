@@ -144,7 +144,6 @@ Prepare for deployment:
 |---------|----------------|
 | "Build me a task app" | Break into stages with specific prompts |
 | Skipping validation | Always request Zod schemas |
-| No tests until the end | Request tests alongside each feature |
 | One giant prompt | One stage per prompt, verify before continuing |
 
 ---

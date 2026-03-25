@@ -87,32 +87,15 @@ fi
 
 ## Automated Testing Pipeline
 
-Generate tests for new files that lack coverage:
+Generate tests for new files that lack coverage. This workflow finds source files in the PR diff that have no corresponding test file and uses Claude Code to generate one:
 
-```yaml
-name: Test Coverage Gate
-on:
-  pull_request:
-    types: [opened, synchronize]
-jobs:
-  coverage:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with: { fetch-depth: 0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: npm ci
-      - name: Generate missing tests
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          npm install -g @anthropic-ai/claude-code
-          for file in $(git diff --name-only origin/main...HEAD | grep '\.ts$' | grep -v '\.test\.'); do
-            TEST="${file%.ts}.test.ts"
-            [ ! -f "$TEST" ] && claude -p "Write Vitest tests for $file. Save to $TEST." --max-turns 10
-          done
-      - run: npm run test:coverage
+```bash
+# Core logic (used in a GitHub Actions step with ANTHROPIC_API_KEY set)
+for file in $(git diff --name-only origin/main...HEAD | grep '\.ts$' | grep -v '\.test\.'); do
+  TEST="${file%.ts}.test.ts"
+  [ ! -f "$TEST" ] && claude -p "Write Vitest tests for $file. Save to $TEST." --max-turns 10
+done
+npm run test:coverage
 ```
 
 ---
