@@ -20,13 +20,6 @@ and ESLint. Name it "taskflow". Use src/ directory structure. Initialize a
 Git repo and create the first commit.
 ```
 
-Follow up to verify:
-
-```
-Show me the project structure and confirm TypeScript, Tailwind, and the
-App Router are configured correctly.
-```
-
 ---
 
 ## Step 2: Database Setup

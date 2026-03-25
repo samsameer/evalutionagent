@@ -155,7 +155,6 @@ jobs:
 | **Scope tightly** | Send diffs, not the entire repo |
 | **Set turn limits** | Always use `--max-turns` to control cost |
 | **Branch protection** | Never let auto-fixes push to main |
-| **Cache the CLI** | Cache the npm package across runs |
 | **Manage secrets** | Store API keys in GitHub Secrets only |
 
 ---
