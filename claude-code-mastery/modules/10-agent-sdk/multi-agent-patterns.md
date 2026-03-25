@@ -68,17 +68,11 @@ async function pipeline(sourceFile: string) {
 }
 ```
 
-| Stage | Agent Role | Tools | Input | Output |
-|-------|-----------|-------|-------|--------|
-| 1 | Analyzer | read, grep, glob | Source file path | List of issues (JSON) |
-| 2 | Fixer | read, edit | Issues + file path | Modified files |
-| 3 | Verifier | read, bash | File path | Test results |
-
 ---
 
 ## Team Pattern
 
-Multiple agents work on independent subtasks in parallel, and results are merged:
+Multiple agents work on independent subtasks in parallel and results are merged:
 
 ```typescript
 async function teamReview(files: string[]) {
@@ -143,20 +137,12 @@ async function supervisedTask(task: string, maxIterations = 3) {
 
 ## Cost Considerations
 
-| Factor | Impact | Mitigation |
-|--------|--------|------------|
-| Each agent has its own context window | Multiplied token usage | Keep agent scopes narrow |
-| Parallel agents run simultaneously | Burst API costs | Set per-agent token limits |
-| Supervisor loops can repeat | Unbounded cost risk | Cap iteration count |
-| Orchestrator planning step | Overhead per task | Cache plans for similar tasks |
-
-```typescript
-// Set per-agent cost limits
-const agent = new ClaudeCode({
-  maxTokens: 4096,
-  timeout: 60000,
-});
-```
+| Factor | Mitigation |
+|--------|------------|
+| Each agent has its own context window | Keep agent scopes narrow |
+| Parallel agents run simultaneously | Set per-agent `maxTokens: 4096` and `timeout: 60000` |
+| Supervisor loops can repeat | Cap iteration count (e.g., `maxIterations = 3`) |
+| Orchestrator planning overhead | Cache plans for similar tasks |
 
 ---
 

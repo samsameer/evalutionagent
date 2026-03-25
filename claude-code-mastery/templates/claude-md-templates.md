@@ -8,100 +8,56 @@
 ## Template 1: Node.js / TypeScript Project
 
 ```markdown
-# CLAUDE.md
-
-## Project Overview
-This is a Node.js/TypeScript project using [framework].
+# CLAUDE.md — Node.js/TypeScript project using [framework]
 
 ## Tech Stack
-- Runtime: Node.js 20+
-- Language: TypeScript 5.x (strict mode)
-- Package manager: npm (use `npm ci` for installs)
-- Test framework: Jest
-- Linter: ESLint + Prettier
+- Node.js 20+ | TypeScript 5.x (strict) | npm | Jest | ESLint + Prettier
 
 ## Commands
-- Build: `npm run build`
-- Test: `npm test`
-- Lint: `npm run lint`
-- Format: `npm run format`
-- Dev server: `npm run dev`
+- Build: `npm run build` | Test: `npm test` | Lint: `npm run lint` | Dev: `npm run dev`
 
-## Code Conventions
-- Use named exports, no default exports
-- Prefer `async/await` over raw promises
-- All functions must have JSDoc comments
-- Use `interface` over `type` for object shapes
-- File naming: kebab-case (e.g., `user-service.ts`)
-- Max file length: 300 lines
+## Conventions
+- Named exports only | `async/await` over promises | JSDoc on all functions
+- `interface` over `type` for objects | kebab-case files | Max 300 lines/file
 
-## Project Structure
-- `src/` — Application source code
-- `src/routes/` — API route handlers
-- `src/services/` — Business logic
-- `src/models/` — Data models and types
-- `tests/` — Test files mirroring src structure
+## Structure
+- `src/` — Source | `src/routes/` — Handlers | `src/services/` — Logic
+- `src/models/` — Types | `tests/` — Mirrors src structure
 ```
 
 ## Template 2: Python Project
 
 ```markdown
-# CLAUDE.md
-
-## Project Overview
-Python application using [framework]. Python 3.12+.
+# CLAUDE.md — Python application using [framework]. Python 3.12+.
 
 ## Setup
-- Virtual env: `python -m venv .venv && source .venv/bin/activate`
-- Install: `pip install -e ".[dev]"`
+- `python -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"`
 
 ## Commands
-- Test: `pytest -v`
-- Lint: `ruff check .`
-- Format: `ruff format .`
-- Type check: `mypy src/`
+- Test: `pytest -v` | Lint: `ruff check .` | Format: `ruff format .` | Types: `mypy src/`
 
-## Code Conventions
-- Follow PEP 8 and PEP 257 (docstrings)
-- Use type hints on all function signatures
-- Prefer dataclasses or Pydantic models over plain dicts
-- Use `pathlib.Path` instead of `os.path`
-- Imports: stdlib, third-party, local (separated by blank lines)
-- Max function length: 30 lines
+## Conventions
+- PEP 8 + PEP 257 | Type hints on all signatures | Pydantic over dicts
+- `pathlib.Path` over `os.path` | Max 30 lines/function
 
-## Project Structure
-- `src/` — Main package
-- `tests/` — Pytest test files
-- `pyproject.toml` — Project configuration
+## Structure
+- `src/` — Main package | `tests/` — Pytest files | `pyproject.toml` — Config
 ```
 
 ## Template 3: Go Project
 
 ```markdown
-# CLAUDE.md
-
-## Project Overview
-Go service using standard library and [framework]. Go 1.22+.
+# CLAUDE.md — Go service using [framework]. Go 1.22+.
 
 ## Commands
-- Build: `go build ./...`
-- Test: `go test ./... -v`
-- Lint: `golangci-lint run`
-- Run: `go run cmd/server/main.go`
+- Build: `go build ./...` | Test: `go test ./... -v` | Lint: `golangci-lint run`
 
-## Code Conventions
-- Follow Effective Go and Go Code Review Comments
-- Use `errors.New` / `fmt.Errorf` with `%w` for wrapping
-- Table-driven tests with `t.Run` subtests
-- No `init()` functions — prefer explicit initialization
-- Context as first parameter in functions that need it
-- Package names: short, lowercase, no underscores
+## Conventions
+- Follow Effective Go | `fmt.Errorf` with `%w` | Table-driven tests with `t.Run`
+- No `init()` | Context as first param | Short lowercase package names
 
-## Project Structure
-- `cmd/` — Application entry points
-- `internal/` — Private packages
-- `pkg/` — Public reusable packages
-- `api/` — API definitions (proto, OpenAPI)
+## Structure
+- `cmd/` — Entry points | `internal/` — Private | `pkg/` — Public | `api/` — Definitions
 ```
 
 ## Template 4: React / Next.js Project

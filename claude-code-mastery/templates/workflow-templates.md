@@ -151,25 +151,11 @@ Step 4 — API docs
 Safely create and apply database schema changes.
 
 ```
-Step 1 — Plan
-> "I need to [describe schema change]. Analyze the current schema
->  and show what migration is needed. Consider data preservation."
-
-Step 2 — Create migration
-> "Create a database migration for the planned changes.
->  Include both up and down migrations."
-
-Step 3 — Validate
-> "Review the migration for: data loss risks, index impacts,
->  foreign key constraints, and backward compatibility."
-
-Step 4 — Update code
-> "Update the application models/types to match the new schema.
->  Update any queries that reference changed tables/columns."
-
-Step 5 — Test
-> "Run the migration against the test database. Verify the
->  application works correctly with the new schema."
+Step 1 — Plan:    "Analyze current schema. Show what migration is needed for [change]. Consider data preservation."
+Step 2 — Create:  "Create a migration with both up and down. Include index changes."
+Step 3 — Validate:"Review for data loss risks, FK constraints, and backward compatibility."
+Step 4 — Update:  "Update application models/types to match the new schema."
+Step 5 — Test:    "Run migration against test database. Verify the app works with new schema."
 ```
 
 ## Workflow 8: Legacy Code Migration
@@ -177,26 +163,11 @@ Step 5 — Test
 Migrate code from one framework/language to another.
 
 ```
-Step 1 — Inventory
-> "Analyze [source directory]. Create an inventory of all files,
->  their responsibilities, dependencies, and complexity scores."
-
-Step 2 — Map
-> "Map each source file to its target equivalent in [new framework].
->  Identify which patterns translate directly and which need rethinking."
-
-Step 3 — Migrate (per file)
-> "Migrate [source file] to [target framework]. Preserve all
->  business logic. Adapt patterns to [target] idioms.
->  Do NOT just translate syntax — use proper [target] conventions."
-
-Step 4 — Integration test
-> "Write integration tests comparing the behavior of the old
->  and new implementations. Both should produce identical results."
-
-Step 5 — Cleanup
-> "Remove deprecated code, update imports, and verify the migrated
->  module works within the larger application."
+Step 1 — Inventory: "Analyze [source dir]. List files, responsibilities, dependencies, complexity."
+Step 2 — Map:       "Map each source file to its [new framework] equivalent."
+Step 3 — Migrate:   "Migrate [file] to [target]. Preserve logic. Use proper [target] conventions."
+Step 4 — Test:      "Write integration tests comparing old and new implementations."
+Step 5 — Cleanup:   "Remove deprecated code, update imports, verify integration."
 ```
 
 ---

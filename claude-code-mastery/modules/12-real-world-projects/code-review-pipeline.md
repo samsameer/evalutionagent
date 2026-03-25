@@ -71,53 +71,27 @@ Teams on enterprise plans can configure centralized review at the organization l
 | **Custom rule sets** | Different profiles for frontend, backend, and infrastructure |
 | **Severity blocking** | Block merges only on critical findings |
 
-```json
-{
-  "review": {
-    "enabled": true,
-    "ruleSets": ["security", "performance", "style"],
-    "blockOnSeverity": "high"
-  }
-}
-```
-
 ---
 
 ## Custom Review Hook
 
-Run a review automatically before every commit using hooks in `.claude/settings.json`:
+Run a review automatically before every commit. In `.claude/settings.json`, add a `PreCommit` hook that pipes staged changes through Claude Code and checks for a BLOCK/PASS response:
 
 ```json
 {
   "hooks": {
-    "PreCommit": [
-      {
-        "matcher": "",
-        "hook": {
-          "type": "command",
-          "command": "claude -p 'Review staged changes. If you find critical bugs or security issues, respond BLOCK and explain. Otherwise respond PASS.' --output-format json | node scripts/check-review.js"
-        }
+    "PreCommit": [{
+      "matcher": "",
+      "hook": {
+        "type": "command",
+        "command": "claude -p 'Review staged changes. If critical bugs or security issues, respond BLOCK. Otherwise PASS.' --output-format json | node scripts/check-review.js"
       }
-    ]
+    }]
   }
 }
 ```
 
-The companion `scripts/check-review.js`:
-
-```javascript
-const fs = require("fs");
-const input = fs.readFileSync("/dev/stdin", "utf8");
-const result = JSON.parse(input);
-const text = result.result || "";
-
-if (text.includes("BLOCK")) {
-  console.error("Review blocked the commit:");
-  console.error(text);
-  process.exit(1);
-}
-console.log("Review passed.");
-```
+The `scripts/check-review.js` reads stdin, parses the JSON, and exits with code 1 if the response contains "BLOCK". This blocks the commit until issues are resolved.
 
 ---
 
@@ -127,42 +101,33 @@ Create `.github/workflows/code-review.yml`:
 
 ```yaml
 name: Claude Code Review
-
 on:
   pull_request:
     types: [opened, synchronize]
-
 permissions:
   contents: read
   pull-requests: write
-
 jobs:
   review:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Install Claude Code
-        run: npm install -g @anthropic-ai/claude-code
-
+        with: { fetch-depth: 0 }
+      - run: npm install -g @anthropic-ai/claude-code
       - name: Run review
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          git diff origin/main...HEAD > /tmp/pr-diff.txt
-          claude -p "Review this diff against our REVIEW.md standards. Format as a markdown checklist with pass/fail for each rule." < /tmp/pr-diff.txt > /tmp/review.md
-
-      - name: Post review comment
+          git diff origin/main...HEAD | claude -p "Review this diff against
+          our REVIEW.md standards. Format as a checklist." > /tmp/review.md
+      - name: Post comment
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const body = fs.readFileSync('/tmp/review.md', 'utf8');
             await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              owner: context.repo.owner, repo: context.repo.repo,
               issue_number: context.issue.number,
               body: `## Automated Code Review\n\n${body}`
             });

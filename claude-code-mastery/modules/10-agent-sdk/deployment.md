@@ -12,17 +12,6 @@ Building an agent locally is only half the work. This lesson covers everything r
 
 ---
 
-## Running Agents in Production
-
-| Concern | Local Development | Production |
-|---------|-------------------|------------|
-| **Reliability** | Restart manually | Automatic retries and health checks |
-| **Observability** | Console logs | Structured logging and alerting |
-| **Cost** | Iterate freely | Enforce budgets and rate limits |
-| **Security** | API key in `.env` | Secrets manager, least-privilege |
-
----
-
 ## Containerization
 
 ```dockerfile
@@ -84,24 +73,21 @@ async function monitoredAgentCall(agent: ClaudeCode, prompt: string) {
   const startTime = Date.now();
   try {
     const response = await agent.sendMessage(prompt);
-    logger.info("agent_complete", {
-      duration: Date.now() - startTime,
-      tokensUsed: response.usage.total_tokens,
-    });
+    logger.info("complete", { duration: Date.now() - startTime, tokens: response.usage.total_tokens });
     return response;
   } catch (error) {
-    logger.error("agent_failed", { error: error.message });
+    logger.error("failed", { error: error.message });
     throw error;
   }
 }
 ```
 
-| Metric | Purpose | Alert Threshold |
-|--------|---------|-----------------|
-| `agent_request_duration` | Detect slow or stuck agents | > 120 seconds |
-| `tokens_per_request` | Track token consumption | > 50,000 per call |
-| `error_rate` | Identify systemic failures | > 5% of requests |
-| `daily_cost` | Budget enforcement | Approaching spend limit |
+| Metric | Alert Threshold |
+|--------|-----------------|
+| `request_duration` | > 120 seconds |
+| `tokens_per_request` | > 50,000 per call |
+| `error_rate` | > 5% of requests |
+| `daily_cost` | Approaching spend limit |
 
 ---
 
@@ -133,17 +119,16 @@ class CostManager {
 
 | Risk | Mitigation |
 |------|-----------|
-| API key exposure | Use secrets managers (AWS Secrets Manager, Vault), never hardcode |
-| Malicious code execution | Restrict `bash` tool, use read-only mounts, sandbox containers |
-| Prompt injection via code | Validate agent output before acting on it |
-| Unbounded resource usage | Set timeouts, token limits, and daily cost caps |
-| Data leakage | Scope file access, avoid sending unnecessary code to agents |
+| API key exposure | Use secrets managers (Vault, AWS Secrets Manager) |
+| Malicious code execution | Restrict `bash` tool, sandbox containers |
+| Prompt injection | Validate agent output before acting on it |
+| Unbounded resources | Set timeouts, token limits, daily cost caps |
 
 ```json
 {
   "permissions": {
     "allow": ["Bash(npm test)", "Bash(npm run lint)"],
-    "deny": ["Bash(rm -rf *)", "Bash(curl *)", "Bash(wget *)"]
+    "deny": ["Bash(rm -rf *)", "Bash(curl *)"]
   }
 }
 ```

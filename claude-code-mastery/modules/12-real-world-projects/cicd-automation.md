@@ -43,43 +43,35 @@ claude -p "Refactor utils.ts to use async/await" --allowedTools "Edit,Read,Bash"
 
 ```yaml
 name: Test and Auto-Fix
-
 on:
   push:
     branches: [main, "feature/**"]
-
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+        with: { node-version: 20 }
       - run: npm ci
-
       - name: Run tests
         id: tests
         run: npm test 2>&1 | tee /tmp/test-output.txt
         continue-on-error: true
-
       - name: Auto-fix with Claude Code
         if: steps.tests.outcome == 'failure'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           npm install -g @anthropic-ai/claude-code
-          claude -p "The test suite failed. Output:
-          $(cat /tmp/test-output.txt)
-          Analyze failures and fix the source code. Do not modify the tests
-          unless they contain a genuine bug." --max-turns 15
-
+          claude -p "Tests failed: $(cat /tmp/test-output.txt)
+          Fix the source code, not the tests." --max-turns 15
       - name: Re-run tests
         if: steps.tests.outcome == 'failure'
         run: npm test
 ```
 
-> **Caution:** Auto-fix workflows should run on feature branches only, never directly on main.
+> **Caution:** Auto-fix workflows should run on feature branches only, never on main.
 
 ---
 
