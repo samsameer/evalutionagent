@@ -130,25 +130,12 @@ Create the PR:
 
 ```bash
 git push -u origin fix/rate-limit-search-endpoint
-
-gh pr create --title "Add rate limiting to /api/search endpoint" --body "$(cat <<'EOF'
-## Summary
-Implements rate limiting for /api/search as described in #42.
-
+gh pr create --title "Add rate limiting to /api/search" --body "## Summary
+Implements rate limiting for /api/search (#42).
 ## Changes
-- Added rate limit middleware using existing express-rate-limit package
-- Configured 100 requests per 15-minute window per IP
-- Added tests for rate limit enforcement and 429 responses
-- Updated API docs with rate limit details
-
-## Testing
-- Unit tests for rate limit middleware
-- Integration test verifying 429 after exceeding limit
-- All existing tests pass
-
-Closes #42
-EOF
-)"
+- Rate limit middleware (100 req/15 min per IP)
+- Tests for enforcement and 429 responses
+Closes #42"
 ```
 
 ---

@@ -117,24 +117,17 @@ interface ReviewResult {
   verdict: "APPROVE" | "REQUEST_CHANGES";
 }
 
-async function reviewPullRequest(diffContent: string): Promise<ReviewResult> {
+async function reviewPullRequest(diff: string): Promise<ReviewResult> {
   const agent = new ClaudeCode({
     allowedTools: ["read", "glob", "grep"],
-    systemPrompt: `You are a strict code reviewer. Analyze the provided diff.
-Return your review as JSON with keys: summary, issues (array), verdict.
-verdict must be APPROVE or REQUEST_CHANGES.`,
+    systemPrompt: `Analyze the diff. Return JSON: { summary, issues[], verdict }.`,
   });
-
-  const response = await agent.sendMessage(
-    `Review this pull request diff:\n\n${diffContent}`
-  );
+  const response = await agent.sendMessage(`Review this diff:\n\n${diff}`);
   return JSON.parse(response.text) as ReviewResult;
 }
 
-const diff = await getDiffFromGitHub(prNumber);
-const review = await reviewPullRequest(diff);
-console.log(`Verdict: ${review.verdict}`);
-review.issues.forEach((issue, i) => console.log(`  ${i + 1}. ${issue}`));
+const review = await reviewPullRequest(await getDiffFromGitHub(prNumber));
+console.log(`Verdict: ${review.verdict}, Issues: ${review.issues.length}`);
 ```
 
 ---

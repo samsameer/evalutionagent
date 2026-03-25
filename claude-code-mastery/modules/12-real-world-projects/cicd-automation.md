@@ -112,36 +112,27 @@ Generate tests for new files that lack coverage:
 
 ```yaml
 name: Test Coverage Gate
-
 on:
   pull_request:
     types: [opened, synchronize]
-
 jobs:
   coverage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        with: { fetch-depth: 0 }
       - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+        with: { node-version: 20 }
       - run: npm ci
-
       - name: Generate missing tests
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           npm install -g @anthropic-ai/claude-code
-          NEW_FILES=$(git diff --name-only origin/main...HEAD | grep -E '\.(ts|tsx)$' | grep -v '\.test\.')
-          for file in $NEW_FILES; do
+          for file in $(git diff --name-only origin/main...HEAD | grep '\.ts$' | grep -v '\.test\.'); do
             TEST="${file%.ts}.test.ts"
-            if [ ! -f "$TEST" ]; then
-              claude -p "Write unit tests for $file using Vitest. Cover exported functions with happy-path and error cases. Save to $TEST." --max-turns 10
-            fi
+            [ ! -f "$TEST" ] && claude -p "Write Vitest tests for $file. Save to $TEST." --max-turns 10
           done
-
       - run: npm run test:coverage
 ```
 
@@ -151,33 +142,24 @@ jobs:
 
 ```yaml
 name: Security Scan
-
 on:
   pull_request:
     types: [opened, synchronize]
-
 jobs:
   security:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Dependency audit
-        run: npm audit --json > /tmp/audit.json
+      - run: npm audit --json > /tmp/audit.json
         continue-on-error: true
-
       - name: Claude security analysis
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           npm install -g @anthropic-ai/claude-code
-          claude -p "Security review:
-          1. Check for hardcoded secrets or credentials
-          2. Review auth and authorization logic
-          3. Look for injection and XSS vulnerabilities
-          4. Audit output: $(cat /tmp/audit.json | head -100)
+          claude -p "Security review: 1) hardcoded secrets 2) auth logic
+          3) injection/XSS 4) npm audit: $(cat /tmp/audit.json | head -100)
           Provide a severity-rated markdown report." > /tmp/security-report.md
-
       - uses: actions/upload-artifact@v4
         with:
           name: security-report

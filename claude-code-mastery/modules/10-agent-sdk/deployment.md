@@ -8,7 +8,7 @@
 
 ## Overview
 
-Building an agent locally is only half the work. This lesson covers everything required to run Claude Code agents reliably in production: containerization, GitHub Actions integration, monitoring, cost management at scale, and security hardening.
+Building an agent locally is only half the work. This lesson covers running Claude Code agents reliably in production: containerization, CI/CD integration, monitoring, cost management, and security.
 
 ---
 
@@ -24,11 +24,6 @@ COPY . .
 RUN useradd -m agent && chown -R agent:agent /app
 USER agent
 CMD ["node", "dist/agent.js"]
-```
-
-```bash
-docker build -t code-review-agent .
-docker run --rm -e ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY" -v /repo:/workspace:ro code-review-agent
 ```
 
 | Best Practice | Reason |
