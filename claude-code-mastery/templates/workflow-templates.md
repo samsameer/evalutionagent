@@ -27,91 +27,40 @@ Step 5 — Document:   "Add a code comment if the fix is non-obvious."
 
 ## Workflow 3: Code Review Assistant
 
-Use Claude Code to review pull requests or code changes.
-
 ```
-Single command approach:
-> "Review the diff from `git diff main...HEAD`. Check for:
->  1. Logic errors and potential bugs
->  2. Security vulnerabilities
->  3. Performance concerns
->  4. Code style and convention violations
->  5. Missing tests or error handling
->  Provide feedback as actionable comments with file and line references."
+Interactive:
+> "Review `git diff main...HEAD`. Check for: logic errors, security issues,
+>  performance concerns, style violations, missing tests. Give actionable feedback."
 
-CI/CD headless approach:
-$ claude -p "Review the changes in this PR. Output a markdown summary
-  with severity labels (critical/warning/suggestion) for each finding." \
-  --max-turns 5 --allowedTools bash,read
+Headless (CI/CD):
+$ claude -p "Review PR changes. Output markdown with severity labels." --max-turns 5
 ```
 
 ## Workflow 4: Refactoring
 
-Safe, incremental refactoring with test validation.
-
 ```
-Step 1 — Assess
-> "Analyze [file/module]. Identify code smells, duplication,
->  and opportunities for improvement. List them by priority."
-
-Step 2 — Plan
-> "Create a refactoring plan that can be done in small, safe steps.
->  Each step should keep tests passing."
-
-Step 3 — Execute incrementally
-> "Perform refactoring step 1: [specific refactor].
->  Run tests after to confirm nothing breaks."
-> (repeat for each step)
-
-Step 4 — Validate
-> "Run the full test suite. Compare the public API before and after
->  to confirm no breaking changes."
+Step 1 — Assess:  "Analyze [file]. Identify code smells, duplication, improvements by priority."
+Step 2 — Plan:    "Create a refactoring plan in small safe steps. Tests must pass after each."
+Step 3 — Execute: "Perform step 1: [specific refactor]. Run tests." (repeat per step)
+Step 4 — Validate:"Run full test suite. Confirm no breaking API changes."
 ```
 
 ## Workflow 5: Test Generation
 
-Generate comprehensive tests for existing code.
-
 ```
-Step 1 — Analyze coverage
-> "Read [file] and list all public functions/methods.
->  For each, identify what test cases are needed:
->  happy path, edge cases, error cases, boundary values."
-
-Step 2 — Generate tests
-> "Write tests for [file] following the test patterns already
->  used in this project. Use the same test framework and assertions."
-
-Step 3 — Run and fix
-> "Run the new tests. Fix any failures. Ensure all tests pass
->  and there are no flaky tests."
-
-Step 4 — Coverage check
-> "Run coverage report: [coverage command].
->  Identify any remaining uncovered branches and add tests for them."
+Step 1 — Analyze: "List all public functions in [file]. Identify needed test cases."
+Step 2 — Generate:"Write tests following existing project patterns and framework."
+Step 3 — Run:     "Run tests. Fix failures. Ensure no flaky tests."
+Step 4 — Coverage:"Run coverage report. Add tests for uncovered branches."
 ```
 
 ## Workflow 6: Documentation Generation
 
-Create or update project documentation.
-
 ```
-Step 1 — Inventory
-> "List all public APIs, exported functions, and key modules
->  in this project that need documentation."
-
-Step 2 — Generate docs
-> "Write JSDoc/docstring comments for all undocumented public
->  functions in [file/directory]. Include parameter descriptions,
->  return types, and usage examples."
-
-Step 3 — README
-> "Update the README.md with current setup instructions,
->  API overview, and usage examples based on the actual code."
-
-Step 4 — API docs
-> "Generate an API reference document covering all endpoints
->  with request/response examples."
+Step 1 — Inventory:   "List all public APIs and modules needing documentation."
+Step 2 — Docstrings:  "Write JSDoc/docstrings for undocumented public functions."
+Step 3 — README:      "Update README with current setup, API overview, examples."
+Step 4 — API Reference:"Generate endpoint reference with request/response examples."
 ```
 
 ## Workflow 7: Database Migration

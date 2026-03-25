@@ -129,27 +129,18 @@ Closes #42"
 
 ## Step 6: Responding to Review Feedback
 
-Address reviewer comments efficiently:
+Address reviewer comments by pasting their feedback into Claude Code:
 
 ```
-The reviewer said: "Use a sliding window algorithm instead of fixed window,
-and make the limit configurable via environment variables."
-Update the implementation to address both points. Keep existing tests passing.
+The reviewer said: "Use a sliding window instead of fixed window, and make
+the limit configurable." Update the implementation accordingly.
 ```
 
-After updating:
-
-```bash
-git add -A && git commit -m "Address review: sliding window + configurable limit"
-git push
-```
-
-If you disagree with feedback, use Claude Code to articulate your reasoning:
+If you disagree, ask Claude Code to help articulate your reasoning:
 
 ```
-The reviewer suggests using Redis for rate limit state. This project has no
-Redis dependency. Help me write a polite response explaining why in-memory
-rate limiting is sufficient here, with supporting references.
+The reviewer suggests Redis for state. This project has no Redis. Help me
+write a polite response explaining why in-memory limiting suffices here.
 ```
 
 ---
