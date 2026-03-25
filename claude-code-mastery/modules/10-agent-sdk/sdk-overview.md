@@ -47,16 +47,6 @@ npm install @anthropic-ai/claude-code-sdk
 # Or with yarn
 yarn add @anthropic-ai/claude-code-sdk
 
-# Verify installation
-npx claude-code-sdk --version
-```
-
-For Python projects, use the subprocess wrapper:
-
-```bash
-# Install Claude Code CLI globally (required by SDK)
-npm install -g @anthropic-ai/claude-code
-
 # Python wrapper
 pip install claude-code-sdk
 ```
@@ -66,10 +56,8 @@ pip install claude-code-sdk
 ## Authentication Setup
 
 ```bash
-# Option 1: Environment variable
+# Set your API key as an environment variable
 export ANTHROPIC_API_KEY="sk-ant-your-key-here"
-
-# Option 2: Pass directly in code (see below)
 ```
 
 ```typescript
@@ -94,7 +82,6 @@ import { ClaudeCode } from "@anthropic-ai/claude-code-sdk";
 async function main() {
   const agent = new ClaudeCode();
 
-  // Send a simple prompt
   const response = await agent.sendMessage(
     "Read the file src/index.ts and summarize what it does."
   );
@@ -118,19 +105,6 @@ main().catch(console.error);
 | **Session State** | Maintains conversation history and working directory context |
 | **Cost Tracker** | Reports token usage and estimated cost per interaction |
 
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│  Your Code   │────▶│  SDK Client  │────▶│  Claude API  │
-│              │◀────│              │◀────│              │
-└──────────────┘     └──────────────┘     └──────────────┘
-                           │
-                     ┌─────┴─────┐
-                     │   Tools   │
-                     │ (fs, bash,│
-                     │  search)  │
-                     └───────────┘
-```
-
 ---
 
 ## Configuration Options
@@ -142,8 +116,8 @@ const agent = new ClaudeCode({
   maxTokens: 16384,
   workingDirectory: "/path/to/project",
   allowedTools: ["read", "edit", "bash", "glob", "grep"],
-  systemPrompt: "You are a senior code reviewer. Be thorough but concise.",
-  timeout: 120000,  // 2 minutes per turn
+  systemPrompt: "You are a senior code reviewer.",
+  timeout: 120000,
 });
 ```
 

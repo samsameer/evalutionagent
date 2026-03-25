@@ -8,141 +8,124 @@
 
 ## Overview
 
-Code review is where bugs get caught, standards get enforced, and knowledge gets shared. This lesson shows how to use Claude Code for both manual reviews and fully automated review pipelines that run on every pull request. You will set up custom review rules, configure review hooks, and integrate everything into GitHub Actions.
+Code review is one of the highest-leverage activities in development, and Claude Code can automate large parts of it. This lesson covers manual reviews with `/review`, custom review rules via `REVIEW.md`, pre-commit review hooks, and GitHub Actions that review every pull request automatically.
 
 ---
 
 ## Manual Reviews with /review
 
-The simplest way to review code is the built-in `/review` command. Open Claude Code in your repository and run:
+The `/review` command analyzes your changes and provides feedback on quality, bugs, and style:
 
-```
-/review
+```bash
+# Review all uncommitted changes
+claude -p "/review"
+
+# Review a specific file
+claude -p "Review src/api/tasks.ts for security issues and error handling"
+
+# Review a branch diff
+git diff main..feature-branch | claude -p "Review this diff for bugs and style issues"
 ```
 
-Claude Code analyzes the current diff and provides feedback on:
-- Logic errors and potential bugs
-- Security vulnerabilities
-- Performance concerns
-- Style inconsistencies
-- Missing error handling
-
-You can also review specific files or a range of commits:
-
-```
-Review the changes in src/api/ from the last 3 commits. Focus on error
-handling and input validation.
-```
+> **Tip:** Pipe a focused diff rather than the entire codebase. Smaller scope produces more actionable feedback.
 
 ---
 
-## Customizing Reviews with REVIEW.md
+## REVIEW.md Customization
 
-Create a `REVIEW.md` file at your repository root to define custom review criteria. Claude Code reads this file when performing reviews.
+Create a `REVIEW.md` in your project root to define standards Claude Code follows during reviews:
 
 ```markdown
 # Code Review Standards
 
 ## Always Check
-- All API endpoints validate input with Zod schemas
-- Database queries use parameterized values (no string concatenation)
-- Error responses never leak stack traces or internal details
-- New functions have JSDoc comments with parameter descriptions
-- Async functions have try/catch blocks or .catch() handlers
+- API routes must validate input with Zod schemas
+- Database queries must use parameterized inputs
+- Error responses must not expose stack traces
 
-## Security Rules
+## Style
+- Use early returns to reduce nesting
+- Maximum function length: 40 lines
+- Prefer named exports over default exports
+
+## Security
 - No secrets or API keys in source code
-- Authentication middleware applied to all protected routes
-- SQL injection prevention verified on any raw queries
-- CORS configuration reviewed for any new endpoints
+- All user input must be sanitized before database insertion
+- Auth middleware must protect all non-public routes
 
-## Performance Rules
-- No N+1 query patterns — use Prisma includes for relations
-- Large lists must support pagination
-- Images and static assets use Next.js Image component
-
-## Test Requirements
-- New utility functions require unit tests
-- New API routes require integration tests
-- Bug fixes require a regression test
+## Testing
+- New routes require at least one happy-path and one error-path test
 ```
 
-When Claude Code runs a review, it checks your code against these specific criteria rather than applying generic advice.
+When this file exists, Claude Code incorporates these rules into every review for the project.
 
 ---
 
 ## Enterprise Code Review Service
 
-For organizations using the Claude Code Enterprise plan, you can set up a centralized review service that runs across all repositories:
+Teams on enterprise plans can configure centralized review at the organization level:
 
-1. **Configure the review policy** in your organization settings:
+| Feature | Description |
+|---------|-------------|
+| **Org-wide rules** | Standards applied across all repositories |
+| **Custom rule sets** | Different profiles for frontend, backend, and infrastructure |
+| **Severity blocking** | Block merges only on critical findings |
 
 ```json
 {
   "review": {
     "enabled": true,
-    "auto_review_prs": true,
-    "required_before_merge": false,
-    "model": "claude-sonnet-4-20250514",
-    "max_files_per_review": 50
+    "ruleSets": ["security", "performance", "style"],
+    "blockOnSeverity": "high"
   }
 }
 ```
-
-2. **Deploy the review bot** by installing the Claude Code GitHub App on your organization and enabling review mode for selected repositories.
-
-3. **Set organization-wide review rules** that apply across all repos while allowing per-repo REVIEW.md overrides.
 
 ---
 
 ## Custom Review Hook
 
-Hooks let you run custom logic before or after Claude Code performs actions. Here is a review hook that enforces additional checks:
+Run a review automatically before every commit using hooks in `.claude/settings.json`:
 
 ```json
-// .claude/settings.json
 {
   "hooks": {
-    "PostToolUse": [
+    "PreCommit": [
       {
-        "matcher": "Review",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node scripts/post-review-check.js"
-          }
-        ]
+        "matcher": "",
+        "hook": {
+          "type": "command",
+          "command": "claude -p 'Review staged changes. If you find critical bugs or security issues, respond BLOCK and explain. Otherwise respond PASS.' --output-format json | node scripts/check-review.js"
+        }
       }
     ]
   }
 }
 ```
 
-The post-review script can enforce gates:
+The companion `scripts/check-review.js`:
 
 ```javascript
-// scripts/post-review-check.js
-const { execSync } = require('child_process');
+const fs = require("fs");
+const input = fs.readFileSync("/dev/stdin", "utf8");
+const result = JSON.parse(input);
+const text = result.result || "";
 
-// Ensure tests pass after review suggestions are applied
-try {
-  execSync('npm test --silent', { stdio: 'pipe' });
-  console.log('All tests pass after review changes.');
-} catch (error) {
-  console.error('Tests failed after applying review suggestions.');
-  console.error('Fix failing tests before committing.');
+if (text.includes("BLOCK")) {
+  console.error("Review blocked the commit:");
+  console.error(text);
   process.exit(1);
 }
+console.log("Review passed.");
 ```
 
 ---
 
-## GitHub Actions: Automated Review on PR
+## GitHub Actions: Review on Every PR
 
-This workflow runs Claude Code review automatically on every pull request:
+Create `.github/workflows/code-review.yml`:
 
 ```yaml
-# .github/workflows/claude-review.yml
 name: Claude Code Review
 
 on:
@@ -157,8 +140,7 @@ jobs:
   review:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -169,51 +151,34 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          claude -p "Review the changes in this pull request. Check against
-          REVIEW.md standards if present. Output your review as structured
-          markdown with sections: Summary, Issues Found, Suggestions,
-          and Approval Recommendation." \
-          --output-format json > review-output.json
+          git diff origin/main...HEAD > /tmp/pr-diff.txt
+          claude -p "Review this diff against our REVIEW.md standards. Format as a markdown checklist with pass/fail for each rule." < /tmp/pr-diff.txt > /tmp/review.md
 
       - name: Post review comment
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            const output = JSON.parse(fs.readFileSync('review-output.json', 'utf8'));
-            await github.rest.pulls.createReview({
+            const body = fs.readFileSync('/tmp/review.md', 'utf8');
+            await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: context.payload.pull_request.number,
-              body: output.result,
-              event: 'COMMENT'
+              issue_number: context.issue.number,
+              body: `## Automated Code Review\n\n${body}`
             });
 ```
 
 ---
 
-## Review Pipeline Best Practices
+## Best Practices
 
-| Practice | Rationale |
-|----------|-----------|
-| Keep REVIEW.md under 50 rules | Too many rules dilute focus and increase cost |
-| Use specific, testable criteria | "Validate input" is vague; "All POST endpoints use Zod schemas" is actionable |
-| Set `required_before_merge: false` initially | Let the team build trust in automated reviews before gating merges |
-| Review the reviewer | Periodically check Claude Code's review output for false positives |
-| Combine with linters | Use ESLint for formatting rules, Claude Code for logic and architecture review |
-
----
-
-## Combining Manual and Automated Reviews
-
-The most effective pipeline uses both approaches:
-
-1. **Automated review** runs on every PR via GitHub Actions, catching common issues instantly
-2. **Developer runs `/review`** locally before pushing to fix issues early
-3. **Human reviewer** focuses on architecture and design decisions, not style or basic bugs
-4. **REVIEW.md evolves** as the team adds new rules based on recurring issues
-
-This layered approach reduces review turnaround time while maintaining high code quality standards.
+| Practice | Details |
+|----------|---------|
+| **Keep REVIEW.md updated** | Treat it as a living document |
+| **Scope reviews tightly** | Review the diff, not the whole codebase |
+| **Use severity levels** | Block merges only on critical issues |
+| **Combine with linters** | Claude reviews complement ESLint, not replace it |
+| **Audit Claude's output** | Periodically check for false positives |
 
 ---
 
@@ -223,8 +188,8 @@ This layered approach reduces review turnaround time while maintaining high code
 |-----------|------|
 | Previous Lesson | [Build a Full-Stack App](fullstack-app.md) |
 | Next Lesson | [CI/CD Automation](cicd-automation.md) |
-| Module Overview | [Module 12: Real-World Projects](README.md) |
+| Module Overview | [README](README.md) |
 
 ---
 
-> **Review Tip:** Start with a small REVIEW.md containing your team's top 5 most common review comments. Expand it over time as you identify patterns in the feedback Claude Code gives.
+> **Pipeline Tip:** Start with the GitHub Actions workflow and add the pre-commit hook once your team trusts the automated output. Gradual adoption reduces friction.

@@ -78,6 +78,26 @@ Each lesson builds on the previous one:
 
 ---
 
+## Quick Start
+
+```bash
+# Install the SDK
+npm install @anthropic-ai/claude-code-sdk
+
+# Set your API key
+export ANTHROPIC_API_KEY="sk-ant-your-key-here"
+```
+
+```typescript
+import { ClaudeCode } from "@anthropic-ai/claude-code-sdk";
+
+const agent = new ClaudeCode();
+const response = await agent.sendMessage("Summarize this project.");
+console.log(response.text);
+```
+
+---
+
 ## Navigation
 
 | Direction | Link |

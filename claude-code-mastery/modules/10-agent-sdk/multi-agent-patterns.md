@@ -25,44 +25,27 @@ Single agents are powerful, but complex tasks often require multiple agents work
 
 ## Orchestrator Pattern
 
-One central agent receives the task, breaks it down, and delegates to specialized sub-agents.
+One central agent receives the task, breaks it down, and delegates to specialized sub-agents:
 
 ```typescript
-import { ClaudeCode } from "@anthropic-ai/claude-code-sdk";
-
 async function orchestrator(task: string) {
   const planner = new ClaudeCode({
     allowedTools: ["read", "glob"],
-    systemPrompt: `You are a project planner. Break tasks into subtasks.
-Return JSON: { subtasks: [{ type: "review"|"implement"|"test", description: string }] }`,
+    systemPrompt: `Break tasks into subtasks. Return JSON:
+{ subtasks: [{ type: "review"|"implement"|"test", description: string }] }`,
   });
-
-  const plan = await planner.sendMessage(task);
-  const { subtasks } = JSON.parse(plan.text);
+  const { subtasks } = JSON.parse((await planner.sendMessage(task)).text);
 
   const specialists: Record<string, ClaudeCode> = {
-    review: new ClaudeCode({
-      allowedTools: ["read", "glob", "grep"],
-      systemPrompt: "You are a code reviewer. Analyze code for issues.",
-    }),
-    implement: new ClaudeCode({
-      allowedTools: ["read", "edit", "write", "bash"],
-      systemPrompt: "You are a developer. Implement the requested changes.",
-    }),
-    test: new ClaudeCode({
-      allowedTools: ["read", "write", "bash"],
-      systemPrompt: "You are a QA engineer. Write and run tests.",
-    }),
+    review: new ClaudeCode({ allowedTools: ["read", "glob", "grep"] }),
+    implement: new ClaudeCode({ allowedTools: ["read", "edit", "write", "bash"] }),
+    test: new ClaudeCode({ allowedTools: ["read", "write", "bash"] }),
   };
 
-  const results = [];
-  for (const subtask of subtasks) {
-    const agent = specialists[subtask.type];
-    const result = await agent.sendMessage(subtask.description);
-    results.push({ type: subtask.type, output: result.text });
-  }
-
-  return results;
+  return Promise.all(subtasks.map(async (s) => ({
+    type: s.type,
+    output: (await specialists[s.type].sendMessage(s.description)).text,
+  })));
 }
 ```
 
@@ -70,36 +53,18 @@ Return JSON: { subtasks: [{ type: "review"|"implement"|"test", description: stri
 
 ## Pipeline Pattern
 
-Each agent processes the output of the previous one, like an assembly line.
+Each agent processes the output of the previous one, like an assembly line:
 
 ```typescript
 async function pipeline(sourceFile: string) {
-  // Stage 1: Analyze
-  const analyzer = new ClaudeCode({
-    allowedTools: ["read", "grep", "glob"],
-    systemPrompt: "Analyze code and list all issues as JSON array.",
-  });
-  const analysis = await analyzer.sendMessage(`Analyze ${sourceFile}`);
+  const analyzer = new ClaudeCode({ allowedTools: ["read", "grep", "glob"] });
+  const analysis = await analyzer.sendMessage(`Analyze ${sourceFile} for issues.`);
 
-  // Stage 2: Fix
-  const fixer = new ClaudeCode({
-    allowedTools: ["read", "edit"],
-    systemPrompt: "Fix the issues described. Edit files directly.",
-  });
-  await fixer.sendMessage(
-    `Fix these issues in ${sourceFile}:\n${analysis.text}`
-  );
+  const fixer = new ClaudeCode({ allowedTools: ["read", "edit"] });
+  await fixer.sendMessage(`Fix these issues in ${sourceFile}:\n${analysis.text}`);
 
-  // Stage 3: Verify
-  const verifier = new ClaudeCode({
-    allowedTools: ["read", "bash"],
-    systemPrompt: "Run tests and confirm all issues are resolved.",
-  });
-  const verification = await verifier.sendMessage(
-    `Verify fixes in ${sourceFile}. Run: npm test`
-  );
-
-  return verification.text;
+  const verifier = new ClaudeCode({ allowedTools: ["read", "bash"] });
+  return await verifier.sendMessage(`Run npm test to verify fixes in ${sourceFile}.`);
 }
 ```
 
@@ -113,28 +78,20 @@ async function pipeline(sourceFile: string) {
 
 ## Team Pattern
 
-Multiple agents work on independent subtasks in parallel, and results are merged.
+Multiple agents work on independent subtasks in parallel, and results are merged:
 
 ```typescript
 async function teamReview(files: string[]) {
   const createReviewer = (focus: string) => new ClaudeCode({
     allowedTools: ["read", "grep", "glob"],
-    systemPrompt: `You review code for ${focus} issues only. Return JSON findings.`,
+    systemPrompt: `Review code for ${focus} issues only. Return JSON findings.`,
   });
 
-  const reviewers = {
-    security: createReviewer("security"),
-    performance: createReviewer("performance"),
-    style: createReviewer("code style and readability"),
-  };
-
   const fileList = files.join(", ");
-
-  // Run all reviewers in parallel
   const [security, performance, style] = await Promise.all([
-    reviewers.security.sendMessage(`Review these files: ${fileList}`),
-    reviewers.performance.sendMessage(`Review these files: ${fileList}`),
-    reviewers.style.sendMessage(`Review these files: ${fileList}`),
+    createReviewer("security").sendMessage(`Review: ${fileList}`),
+    createReviewer("performance").sendMessage(`Review: ${fileList}`),
+    createReviewer("code style").sendMessage(`Review: ${fileList}`),
   ]);
 
   return {
@@ -149,40 +106,24 @@ async function teamReview(files: string[]) {
 
 ## Supervisor Pattern
 
-One agent does the work; another reviews it and requests corrections if needed.
+One agent does the work; another reviews and requests corrections if needed:
 
 ```typescript
 async function supervisedTask(task: string, maxIterations = 3) {
-  const worker = new ClaudeCode({
-    allowedTools: ["read", "edit", "write", "bash"],
-    systemPrompt: "You are a developer. Implement the requested changes.",
-  });
-
+  const worker = new ClaudeCode({ allowedTools: ["read", "edit", "write", "bash"] });
   const supervisor = new ClaudeCode({
     allowedTools: ["read", "glob", "grep"],
-    systemPrompt: `You are a senior engineer reviewing work.
-Return JSON: { approved: boolean, feedback: string }`,
+    systemPrompt: `Review work. Return JSON: { approved: boolean, feedback: string }`,
   });
-
-  let workerOutput = await worker.sendMessage(task);
-
+  let output = await worker.sendMessage(task);
   for (let i = 0; i < maxIterations; i++) {
-    const review = await supervisor.sendMessage(
-      `Review the changes just made for this task: "${task}"\n\nWorker output:\n${workerOutput.text}`
+    const { approved, feedback } = JSON.parse(
+      (await supervisor.sendMessage(`Review: ${output.text}`)).text
     );
-
-    const { approved, feedback } = JSON.parse(review.text);
-
-    if (approved) {
-      return { result: workerOutput.text, iterations: i + 1 };
-    }
-
-    workerOutput = await worker.sendMessage(
-      `The reviewer found issues:\n${feedback}\n\nPlease fix them.`
-    );
+    if (approved) return { result: output.text, iterations: i + 1 };
+    output = await worker.sendMessage(`Fix these issues:\n${feedback}`);
   }
-
-  throw new Error("Max review iterations reached without approval");
+  throw new Error("Max iterations reached without approval");
 }
 ```
 
@@ -212,8 +153,8 @@ Return JSON: { approved: boolean, feedback: string }`,
 ```typescript
 // Set per-agent cost limits
 const agent = new ClaudeCode({
-  maxTokens: 4096,       // Limit output tokens per turn
-  timeout: 60000,        // Kill after 60 seconds
+  maxTokens: 4096,
+  timeout: 60000,
 });
 ```
 

@@ -76,3 +76,7 @@ By the end of this module, you will be able to:
 | Previous Module | [Module 07: Advanced Features](../07-advanced-features/) |
 | Next Module | [Module 09: Team & Enterprise](../09-team-enterprise/) |
 | Home | [Course Home](../../) |
+
+---
+
+[← Previous Module](../07-advanced-features/) | [Course Home](../../README.md) | [Next Module →](../09-team-enterprise/)

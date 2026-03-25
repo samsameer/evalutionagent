@@ -1,4 +1,4 @@
-# Claude Code — Frequently Asked Questions
+# Frequently Asked Questions
 
 **Claude Code Mastery — March 2026**
 **Instructor: Jabbir Basha, Principal AI Engineer**
@@ -8,101 +8,75 @@
 ## Privacy & Security
 
 ### 1. Is my code sent to Anthropic?
+Yes, code snippets are sent to Anthropic's API for processing. However, Anthropic does not train on API data. For enterprise compliance, use AWS Bedrock or Google Vertex AI as intermediaries so code never reaches Anthropic servers directly.
 
-Yes — code that Claude reads is sent to Anthropic's API for processing. However, Anthropic does not train on API data by default. If you use Claude Code through a Max subscription or API key, your inputs and outputs are not used for model training unless you explicitly opt in. Review Anthropic's data usage policy for your plan.
+### 2. Are my conversations stored?
+Conversations are stored locally in `~/.claude/projects/`. Anthropic may retain API logs for 30 days for abuse monitoring but does not use them for training. You can clear local history with `/clear` or by deleting the project folder.
 
-### 2. Is Claude Code safe to use on proprietary codebases?
-
-Yes, with appropriate plan selection. Enterprise and API plans include contractual commitments that data is not used for training. Use the `--no-telemetry` flag to disable anonymous usage analytics if required by your organization.
-
-### 3. Are my conversations stored locally?
-
-Yes. Conversation history is stored locally on your machine in `~/.claude/` and is never uploaded. You can resume previous sessions with `claude --resume`.
-
----
+### 3. Can I use Claude Code in air-gapped environments?
+Not directly. Claude Code requires internet access to reach the Anthropic API (or Bedrock/Vertex endpoints). For restricted environments, configure a proxy or use Bedrock within your AWS VPC.
 
 ## Models & Pricing
 
 ### 4. Which model does Claude Code use?
+By default, Claude Code uses Claude Sonnet (the latest version). You can override this with `CLAUDE_MODEL` environment variable to use Opus for complex tasks or Haiku for faster, cheaper operations.
 
-Claude Code defaults to Claude Sonnet (currently claude-sonnet-4-20250514). You can switch to Opus for complex tasks using `/model` or the `--model` flag. Haiku is available for lighter tasks.
+### 5. How do I reduce costs?
+- Use `/compact` frequently to reduce context size
+- Write specific, focused prompts instead of vague requests
+- Use `--max-turns` in headless mode to cap iterations
+- Enable prompt caching by keeping CLAUDE.md stable across sessions
+- Use Haiku for simple tasks, Sonnet for standard work, Opus for complex reasoning
 
-### 5. How much does Claude Code cost?
+### 6. How much does Claude Code cost?
+Claude Code itself is free and open source. You pay for API usage: Sonnet costs approximately $3/$15 per million input/output tokens. A typical coding session uses $0.50-$5.00 depending on complexity and context size.
 
-Claude Code is available through a Max subscription ($100/month or $200/month for higher limits) or via API pay-as-you-go pricing. Typical coding sessions cost $0.50-$5.00 depending on complexity and context size.
+## Setup & Configuration
 
-### 6. How do I reduce token costs?
+### 7. Can I use Claude Code offline?
+No. Claude Code requires an active internet connection to communicate with the Claude API. All reasoning happens server-side.
 
-- Keep CLAUDE.md files concise and relevant
-- Use `/compact` regularly to summarize conversation history
-- Use `/clear` to start fresh when switching tasks
-- Enable prompt caching by maintaining consistent context prefixes
-- Avoid pasting large files — let Claude read only what it needs
+### 8. How do I set up Claude Code with VS Code?
+Install the "Claude Code" extension from the VS Code marketplace. It embeds Claude Code as a panel within VS Code. Alternatively, use Claude Code in the integrated terminal directly.
 
-### 7. What is the difference between Sonnet and Opus?
+### 9. Does Claude Code work with JetBrains IDEs?
+Yes. Install the Claude Code plugin from the JetBrains marketplace. It supports IntelliJ, PyCharm, WebStorm, GoLand, and other JetBrains products.
 
-Sonnet is faster and cheaper, ideal for most coding tasks. Opus provides deeper reasoning for complex architecture decisions, subtle bugs, and multi-file refactors. Use Sonnet by default and switch to Opus when Sonnet struggles.
+### 10. How do I configure Claude Code for my team?
+Create a `.claude/settings.json` at the project root with shared configuration. Use enterprise OAuth/SSO for authentication. Distribute a shared CLAUDE.md with team conventions.
 
----
+## Usage & Capabilities
 
-## Usage & Features
+### 11. What programming languages does Claude Code support?
+Claude Code is language-agnostic. It supports any language that Claude understands, including Python, JavaScript/TypeScript, Go, Rust, Java, C/C++, Ruby, PHP, Swift, Kotlin, and many more. Effectiveness varies by language popularity in training data.
 
-### 8. Can I use Claude Code offline?
+### 12. Can Claude Code run my tests?
+Yes. Claude Code can execute shell commands including test runners. Configure your test command in CLAUDE.md so Claude knows how to run tests for your project (e.g., `npm test`, `pytest`, `go test`).
 
-No. Claude Code requires an internet connection to communicate with Anthropic's API. There is no local model option.
+### 13. How do I give Claude Code access to databases or APIs?
+Use MCP (Model Context Protocol) servers. Configure them in `.claude/settings.json` to expose database queries, API calls, or other external tools to Claude during your session.
 
-### 9. What programming languages does Claude Code support?
+### 14. Can Claude Code work with multiple files?
+Yes. Claude Code excels at multi-file changes. It can read, create, and edit files across your entire project. For large refactors, provide clear instructions and let Claude plan the changes.
 
-Claude Code works with any text-based programming language. It has strong capabilities in Python, JavaScript/TypeScript, Go, Rust, Java, C/C++, Ruby, PHP, Swift, and more. It can also work with configuration files, markup languages, and shell scripts.
-
-### 10. Can Claude Code run my tests and fix failures?
-
-Yes. Claude Code can execute test suites, read failure output, diagnose issues, and apply fixes — all in a single agentic loop. Use a prompt like: "Run the test suite and fix any failing tests."
-
-### 11. How do I give Claude project-specific instructions?
-
-Create a `CLAUDE.md` file in your project root. Claude Code reads this automatically at the start of every session. Include coding conventions, architecture notes, build commands, and common patterns.
-
-### 12. Can Claude Code work with monorepos?
-
-Yes. Place a root-level `CLAUDE.md` with global conventions, then add `CLAUDE.md` files in subdirectories for package-specific instructions. Claude Code merges them based on the working directory.
-
-### 13. What are hooks and when should I use them?
-
-Hooks are shell commands that run before or after Claude Code events. Use them to auto-lint after file edits, auto-format code, block dangerous commands, or send notifications when tasks complete. Configure them in `.claude/settings.json`.
-
----
-
-## Troubleshooting
-
-### 14. Why does Claude Code lose context mid-conversation?
-
-The context window has a finite size. Long sessions with many file reads and tool calls fill it up. Use `/compact` to summarize and reclaim space, or `/clear` to start fresh.
-
-### 15. Why is Claude Code slow?
-
-Common causes: large context windows, extended thinking on complex tasks, rate limiting on your plan, or slow network. Try `/compact` to reduce context size, or check your plan's rate limits.
+### 15. How does context window management work?
+Claude Code automatically manages context. When the window fills up, it triggers auto-compaction (summarizing older parts of the conversation). You can manually trigger this with `/compact`. CLAUDE.md content is always preserved.
 
 ### 16. Can I use Claude Code in CI/CD pipelines?
+Yes. Use headless mode: `claude -p "your prompt" --max-turns 10 --allowedTools bash,write`. This runs non-interactively and returns the result to stdout. Ideal for automated code review, test generation, and migrations.
 
-Yes. Use headless mode: `claude -p "your prompt" --output-format json`. Set your API key via the `ANTHROPIC_API_KEY` environment variable. This is ideal for automated code review, test generation, and migration scripts.
+### 17. How do I undo changes Claude made?
+Claude Code works with your normal Git workflow. Use `git diff` to review changes and `git checkout -- .` to revert. Claude also shows diffs before applying changes, so you can reject modifications.
 
-### 17. Does Claude Code work with VS Code and JetBrains?
+### 18. What is the maximum file size Claude can handle?
+Claude can read files of any size, but very large files consume significant context. For files over 1000 lines, Claude Code automatically reads relevant sections rather than the entire file. Point Claude to specific line ranges for best results.
 
-Yes. Claude Code has official extensions for both VS Code and JetBrains IDEs that embed the terminal experience directly in your editor with additional GUI features.
+### 19. Can multiple people use Claude Code on the same project simultaneously?
+Yes. Each person runs their own Claude Code session with their own API key. Use Git branches to avoid conflicts. Claude Code does not lock files or interfere with other sessions.
 
-### 18. Can multiple team members share a CLAUDE.md?
-
-Yes — commit CLAUDE.md to version control. The team shares project conventions while individual preferences go in `~/.claude/CLAUDE.md` (the user-level file).
-
-### 19. How do I use MCP servers with Claude Code?
-
-Add MCP server configurations to `.claude/settings.json` under the `mcpServers` key. Each server needs a command, arguments, and optional environment variables. Claude Code connects to them automatically on startup.
-
-### 20. What is the maximum file size Claude Code can handle?
-
-Claude Code can read any file, but very large files consume significant context. For files over 1,000 lines, Claude typically reads only the relevant sections. There is no hard file-size limit, but practical limits are governed by the context window.
+### 20. How do I report bugs or request features?
+File issues on the Claude Code GitHub repository at `github.com/anthropics/claude-code`. Include your Claude Code version (`claude --version`), OS, and steps to reproduce.
 
 ---
 
-> **Still have questions?** Run `/help` in Claude Code or visit [docs.anthropic.com](https://docs.anthropic.com).
+> **Still have questions?** Check the official docs at [docs.anthropic.com](https://docs.anthropic.com) or ask in the Anthropic Discord community.

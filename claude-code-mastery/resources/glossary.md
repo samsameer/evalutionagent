@@ -5,68 +5,81 @@
 
 ---
 
-A comprehensive glossary of terms used throughout Claude Code and the Anthropic ecosystem.
-
-## Core Concepts
+## Core Terminology
 
 | Term | Definition |
 |------|-----------|
-| **Agentic Loop** | The iterative cycle where Claude reads context, decides on an action, executes a tool, observes the result, and repeats until the task is complete. |
+| **Agentic Loop** | The iterative cycle where Claude reads context, decides on an action, executes it via a tool, observes the result, and repeats until the task is complete. |
 | **Anthropic** | The AI safety company that builds Claude, the large language model powering Claude Code. |
-| **Claude** | Anthropic's family of large language models, including Sonnet, Opus, and Haiku variants. |
-| **Claude Code** | Anthropic's official agentic CLI tool that lets developers use Claude directly in their terminal for coding tasks. |
-| **CLAUDE.md** | A markdown file placed in a project root (or subdirectories) that provides persistent context, conventions, and instructions to Claude Code across sessions. |
-| **Context Window** | The maximum amount of text (measured in tokens) that Claude can process in a single conversation. Larger windows allow more code and history to be considered. |
-| **Token** | The fundamental unit of text processing. Roughly 4 characters or 0.75 words in English. Used to measure input size, output size, and cost. |
+| **Auto Mode** | A permission mode (`--allowedTools`) that lets Claude execute approved tool categories without prompting for confirmation each time. |
+| **CLAUDE.md** | A special Markdown file placed in your repository that provides persistent instructions, project context, and conventions to Claude Code across sessions. |
+| **Claude Code** | Anthropic's official agentic CLI tool that brings Claude directly into your terminal for software engineering tasks. |
+| **Context Window** | The maximum amount of text (measured in tokens) that Claude can process in a single conversation. Currently up to 200K tokens for Claude Sonnet and Opus. |
+| **Extended Thinking** | A capability where Claude performs deeper, step-by-step reasoning before responding, improving accuracy on complex tasks. Enabled with `--thinking`. |
+| **Hooks** | User-defined shell commands that run automatically at specific lifecycle points (pre-tool, post-tool, notification) during a Claude Code session. |
+| **MCP (Model Context Protocol)** | An open protocol that allows Claude Code to connect to external tools, databases, and services through standardized server interfaces. |
+| **Permission Modes** | Security levels controlling which tools Claude can use without confirmation: `default`, `plan`, `bypassPermissions`. |
+| **Slash Commands** | Built-in commands prefixed with `/` (e.g., `/clear`, `/compact`, `/cost`) that control Claude Code behavior during a session. |
+| **Subagent** | A child Claude instance spawned by the main agent to handle a subtask independently, such as searching files or running tests in parallel. |
+| **Tool Use** | The mechanism by which Claude invokes external capabilities like file reading, writing, bash commands, or MCP servers. |
 
-## Features & Capabilities
-
-| Term | Definition |
-|------|-----------|
-| **Adaptive Reasoning** | Claude's ability to dynamically adjust the depth and approach of its reasoning based on task complexity, using more thinking budget for harder problems. |
-| **Auto Mode** | A permission mode where Claude Code automatically approves safe tool calls (reads, searches) while still prompting for potentially destructive actions (writes, deletes). |
-| **Extended Thinking** | A feature that gives Claude a dedicated "thinking" scratchpad to reason through complex problems step by step before responding. Consumes additional tokens. |
-| **Hooks** | User-defined shell commands that run automatically before or after specific Claude Code events (e.g., before a file edit, after a command). Used for linting, formatting, and validation. |
-| **MCP (Model Context Protocol)** | An open protocol that allows Claude Code to connect to external tools and data sources through a standardized server interface. |
-| **Permission Modes** | Configuration settings that control which actions Claude Code can perform without asking — ranges from fully interactive to fully autonomous. |
-| **Prompt Caching** | A cost-optimization feature where Anthropic caches repeated prompt prefixes, reducing token charges for conversations that share common context like CLAUDE.md. |
-| **Slash Commands** | Built-in commands prefixed with `/` that control Claude Code behavior, such as `/clear`, `/compact`, `/config`, `/help`, and `/review`. |
-| **Skills** | Reusable prompt snippets stored as markdown files that can be invoked as slash commands, allowing teams to codify common workflows. |
-| **Subagent** | A child instance of Claude spawned by the main agent to handle a subtask independently, allowing parallel work on complex problems. |
-| **Tool Use** | Claude's ability to invoke external tools (file read/write, bash commands, search) to interact with the development environment. |
-
-## Architecture & Modes
+## Advanced Concepts
 
 | Term | Definition |
 |------|-----------|
-| **Allowlist** | A list of specific tools or commands that Claude Code is pre-approved to run without prompting the user. Configured in settings or CLAUDE.md. |
-| **Compact Mode** | A conversation management feature that summarizes older context to free up space in the context window for new information. |
-| **Conversation History** | The full sequence of messages, tool calls, and results in a Claude Code session. Stored locally and resumable. |
-| **Headless Mode** | Running Claude Code non-interactively via `claude -p "prompt"`, useful for CI/CD pipelines and automation scripts. |
-| **Multi-turn Conversation** | An extended back-and-forth session where Claude retains context from earlier messages to build on previous work. |
-| **Worktree** | A Git feature that Claude Code leverages to work on multiple branches simultaneously without switching, enabling parallel development tasks. |
+| **Adaptive Reasoning** | Claude's ability to dynamically adjust its reasoning depth based on task complexity, conserving tokens on simple tasks. |
+| **Agent SDK** | Anthropic's Python SDK for building custom agentic applications on top of Claude, supporting multi-agent orchestration. |
+| **Allowlist** | A configured list of tools or commands that Claude may execute without user approval in auto mode. |
+| **API Key** | A secret credential used to authenticate with the Anthropic API. Set via `ANTHROPIC_API_KEY` environment variable. |
+| **Caching (Prompt Caching)** | A technique where previously sent context is cached server-side to reduce latency and cost on subsequent requests. |
+| **Compact Mode** | Triggered by `/compact` or automatically when context grows large; summarizes conversation history to free up context window space. |
+| **Cost Tracking** | Built-in feature (`/cost`) that displays cumulative token usage and estimated dollar cost for the current session. |
+| **Diff View** | The display format Claude uses to show proposed file changes, allowing you to review before accepting. |
+| **Headless Mode** | Running Claude Code non-interactively via `claude -p "prompt"`, suitable for CI/CD pipelines and scripts. |
+| **Init Command** | `claude /init` generates an initial CLAUDE.md file by analyzing your project structure, dependencies, and conventions. |
+| **Max Turns** | In headless mode, the `--max-turns` flag limits how many agentic loop iterations Claude will perform before stopping. |
+| **Memory Files** | CLAUDE.md files at various scopes (global `~/.claude/CLAUDE.md`, project root, subdirectories) that persist instructions across sessions. |
+| **Multi-root Workspace** | A VS Code or JetBrains setup where Claude Code operates across multiple project folders simultaneously. |
+| **OAuth / SSO** | Enterprise authentication methods supported by Claude Code for team deployments, bypassing individual API keys. |
+| **Prompt Engineering** | The practice of crafting clear, specific instructions to get optimal results from Claude Code. |
+| **Session** | A single continuous conversation with Claude Code, from start to `/clear` or exit. Context accumulates within a session. |
+| **Skills** | Reusable slash-command workflows defined in CLAUDE.md or plugins that encapsulate multi-step procedures. |
+| **Token** | The basic unit of text processing for LLMs. Roughly 4 characters or 0.75 words in English. Both input and output tokens count toward usage. |
+| **Worktree** | A Git feature allowing multiple working directories from a single repository. Claude Code can use worktrees for parallel branch work. |
 
-## API & Integration
+## MCP-Specific Terms
 
 | Term | Definition |
 |------|-----------|
-| **Agent SDK** | Anthropic's official SDK for building custom agentic applications on top of Claude, used programmatically rather than via the CLI. |
-| **API Key** | A secret credential used to authenticate with Anthropic's API. Required for direct API usage; Claude Code can also authenticate via OAuth. |
-| **Max Mode** | Using Claude with Opus-level models for maximum capability on complex tasks, at higher token cost. Toggled with `/model`. |
-| **MCP Server** | A process that implements the Model Context Protocol, exposing tools and resources (databases, APIs, file systems) to Claude Code. |
-| **MCP Transport** | The communication layer for MCP — either `stdio` (local process) or `sse` (remote HTTP server). |
-| **OAuth** | The authentication method used when signing into Claude Code with an Anthropic account, as an alternative to raw API keys. |
-| **Streaming** | The real-time delivery of Claude's response token by token, allowing users to see output as it is generated. |
+| **MCP Server** | A process that exposes tools, resources, or prompts to Claude Code via the Model Context Protocol. |
+| **MCP Transport** | The communication layer (stdio or SSE) used between Claude Code and an MCP server. |
+| **Resource (MCP)** | A read-only data source (file, API endpoint, database query) exposed by an MCP server for Claude to reference. |
+| **Tool (MCP)** | An executable action exposed by an MCP server that Claude can invoke, such as querying a database or calling an API. |
 
-## Cost & Performance
+## Slash Command Reference
 
-| Term | Definition |
-|------|-----------|
-| **Input Tokens** | Tokens sent to Claude (your prompt, code, context). Priced lower than output tokens. |
-| **Output Tokens** | Tokens generated by Claude (responses, code, explanations). Priced higher than input tokens. |
-| **Rate Limiting** | Throttling applied when API usage exceeds plan limits. Results in slower responses or temporary blocks. |
-| **Token Budget** | A configurable cap on how many tokens Claude can use for thinking or responding in a single turn. |
+| Command | Purpose |
+|---------|---------|
+| `/clear` | Resets the conversation context and starts fresh |
+| `/compact` | Summarizes conversation history to free context window space |
+| `/cost` | Displays cumulative token usage and estimated dollar cost |
+| `/init` | Generates a CLAUDE.md file by analyzing your project |
+| `/help` | Shows available commands and usage information |
+| `/model` | Switches the active model mid-session |
+| `/review` | Triggers a code review of recent changes |
+
+## Environment Variables
+
+| Variable | Purpose |
+|----------|---------|
+| `ANTHROPIC_API_KEY` | Authenticates requests to the Anthropic API |
+| `CLAUDE_CODE_USE_BEDROCK` | Routes requests through AWS Bedrock instead of direct API |
+| `CLAUDE_CODE_USE_VERTEX` | Routes requests through Google Vertex AI |
+| `CLAUDE_MODEL` | Overrides the default model (e.g., `claude-sonnet-4-20250514`) |
+| `CLAUDE_CODE_MAX_OUTPUT_TOKENS` | Sets maximum response length per turn |
+| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Disables telemetry and update checks |
+| `CLAUDE_CODE_SKIP_CLAUDE_MD` | Skips loading CLAUDE.md files (for debugging) |
 
 ---
 
-> **Tip:** Use `/help` inside Claude Code to see built-in documentation for any command or feature.
+> **Tip:** Use `/cost` during any session to see real-time token and cost metrics.

@@ -30,19 +30,13 @@ console.log(response.text);
 
 ## Configuring Available Tools
 
-Control what the agent can do by restricting its tool set:
-
 ```typescript
-// Read-only agent: can inspect code but never modify it
-const reviewer = new ClaudeCode({
-  allowedTools: ["read", "glob", "grep"],
-  systemPrompt: "You review code. You cannot modify files.",
-});
+// Read-only agent — can inspect code but never modify it
+const reviewer = new ClaudeCode({ allowedTools: ["read", "glob", "grep"] });
 
-// Full-access agent: can read, write, and run commands
+// Full-access agent — can read, write, and run commands
 const developer = new ClaudeCode({
   allowedTools: ["read", "edit", "write", "bash", "glob", "grep"],
-  systemPrompt: "You are a senior developer. Implement requested changes.",
 });
 ```
 
@@ -59,22 +53,13 @@ const developer = new ClaudeCode({
 
 ## Setting System Prompts
 
-System prompts define the agent's persona, rules, and output format:
-
 ```typescript
 const codeReviewer = new ClaudeCode({
   systemPrompt: `You are a senior code reviewer at a fintech company.
-
 Rules:
-- Flag any security vulnerabilities immediately
-- Check for proper error handling in all async functions
-- Verify that database queries use parameterized statements
-- Rate each file: PASS, WARN, or FAIL
-
-Output format:
-- Start with a summary table of files reviewed
-- Then provide detailed findings per file
-- End with an overall verdict`,
+- Flag security vulnerabilities immediately
+- Check for proper error handling in async functions
+- Rate each file: PASS, WARN, or FAIL`,
 });
 ```
 
@@ -82,30 +67,11 @@ Output format:
 
 ## Handling Conversation Turns
 
-Agents support multi-turn conversations with persistent context:
-
 ```typescript
-const agent = new ClaudeCode({
-  workingDirectory: "/home/user/my-project",
-});
-
-// Turn 1: Agent reads and understands the codebase
-const turn1 = await agent.sendMessage(
-  "Read src/auth.ts and identify any security concerns."
-);
-console.log("Analysis:", turn1.text);
-
-// Turn 2: Follow up with context from turn 1
-const turn2 = await agent.sendMessage(
-  "Now fix the issues you identified. Show me the changes."
-);
-console.log("Fixes:", turn2.text);
-
-// Turn 3: Verify the fixes
-const turn3 = await agent.sendMessage(
-  "Run the test suite to make sure nothing broke."
-);
-console.log("Tests:", turn3.text);
+const agent = new ClaudeCode({ workingDirectory: "/home/user/my-project" });
+const turn1 = await agent.sendMessage("Read src/auth.ts and identify security concerns.");
+const turn2 = await agent.sendMessage("Now fix the issues you identified.");
+const turn3 = await agent.sendMessage("Run the test suite to make sure nothing broke.");
 ```
 
 ---
@@ -113,24 +79,19 @@ console.log("Tests:", turn3.text);
 ## Error Handling
 
 ```typescript
-import { ClaudeCode, AgentError, TimeoutError, RateLimitError }
-  from "@anthropic-ai/claude-code-sdk";
+import { ClaudeCode, TimeoutError, RateLimitError } from "@anthropic-ai/claude-code-sdk";
 
 async function safeAgentCall(agent: ClaudeCode, prompt: string) {
   try {
-    const response = await agent.sendMessage(prompt);
-    return response;
+    return await agent.sendMessage(prompt);
   } catch (error) {
     if (error instanceof TimeoutError) {
-      console.error("Agent timed out. Consider increasing timeout or simplifying the task.");
+      console.error("Agent timed out. Simplify the task or increase timeout.");
     } else if (error instanceof RateLimitError) {
-      console.error(`Rate limited. Retry after ${error.retryAfter}s`);
-      await sleep(error.retryAfter * 1000);
-      return agent.sendMessage(prompt);  // Retry once
-    } else if (error instanceof AgentError) {
-      console.error(`Agent error: ${error.message}`);
+      await new Promise((r) => setTimeout(r, error.retryAfter * 1000));
+      return agent.sendMessage(prompt);
     } else {
-      throw error;  // Unknown error, propagate
+      throw error;
     }
   }
 }
@@ -162,22 +123,17 @@ async function reviewPullRequest(diffContent: string): Promise<ReviewResult> {
     systemPrompt: `You are a strict code reviewer. Analyze the provided diff.
 Return your review as JSON with keys: summary, issues (array), verdict.
 verdict must be APPROVE or REQUEST_CHANGES.`,
-    maxTokens: 8192,
   });
 
   const response = await agent.sendMessage(
     `Review this pull request diff:\n\n${diffContent}`
   );
-
   return JSON.parse(response.text) as ReviewResult;
 }
 
-// Usage
 const diff = await getDiffFromGitHub(prNumber);
 const review = await reviewPullRequest(diff);
-
 console.log(`Verdict: ${review.verdict}`);
-console.log(`Issues found: ${review.issues.length}`);
 review.issues.forEach((issue, i) => console.log(`  ${i + 1}. ${issue}`));
 ```
 
