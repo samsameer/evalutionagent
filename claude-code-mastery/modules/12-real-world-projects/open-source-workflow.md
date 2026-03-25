@@ -48,12 +48,11 @@ How does the authentication system work? Trace the flow from login to
 session creation and show the key files.
 ```
 
-| Exploration Prompt | When to Use |
-|-------------------|-------------|
+| Prompt | When to Use |
+|--------|-------------|
 | "Explain the architecture..." | First time in any codebase |
 | "How does X feature work?" | Before modifying a feature |
 | "What are the coding conventions?" | Before writing new code |
-| "What CI checks must my PR pass?" | Before submitting |
 
 ---
 
@@ -147,7 +146,6 @@ write a polite response explaining why in-memory limiting suffices here.
 | Pitfall | How to Avoid |
 |---------|-------------|
 | Ignoring conventions | Ask Claude to check CONTRIBUTING.md first |
-| Over-engineering | Match the complexity of existing code |
 | Unfocused PRs | Keep changes scoped to one issue |
 
 ---
