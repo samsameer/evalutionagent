@@ -41,24 +41,18 @@ Explain the architecture of this project. What are the main directories,
 how does data flow, and what are the key entry points?
 ```
 
-Go deeper into the area you plan to change:
+Drill into the area you plan to change:
 
 ```
-How does the authentication system work? Trace the flow from login request
-to session creation and show the key files involved.
+How does the authentication system work? Trace the flow from login to
+session creation and show the key files.
 ```
 
-```
-What testing framework does this project use? Show the test directory
-structure and the conventions for naming tests.
-```
-
-| Prompt | When to Use |
-|--------|-------------|
+| Exploration Prompt | When to Use |
+|-------------------|-------------|
 | "Explain the architecture..." | First time in any codebase |
 | "How does X feature work?" | Before modifying a feature |
 | "What are the coding conventions?" | Before writing new code |
-| "Show me the test patterns" | Before writing tests |
 | "What CI checks must my PR pass?" | Before submitting |
 
 ---
