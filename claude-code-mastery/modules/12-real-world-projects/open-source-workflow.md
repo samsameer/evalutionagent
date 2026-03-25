@@ -101,16 +101,12 @@ and do not break anything. Update docs if the project requires it.
 
 ## Step 5: Creating a Quality PR
 
-Study the project's PR conventions with `Look at the last 5 merged PRs. Draft a title and body for my changes.` Then create the PR:
+Ask Claude to study recent merged PRs and draft your title and description, then create it:
 
 ```bash
 git push -u origin fix/rate-limit-search-endpoint
-gh pr create --title "Add rate limiting to /api/search" --body "## Summary
-Implements rate limiting for /api/search (#42).
-## Changes
-- Rate limit middleware (100 req/15 min per IP)
-- Tests for enforcement and 429 responses
-Closes #42"
+gh pr create --title "Add rate limiting to /api/search" \
+  --body "Implements rate limiting (#42). Adds middleware and tests. Closes #42"
 ```
 
 ---
