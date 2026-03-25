@@ -63,31 +63,17 @@
 ## Template 4: React / Next.js Project
 
 ```markdown
-# CLAUDE.md
-
-## Project Overview
-React application built with Next.js 14+ (App Router).
+# CLAUDE.md — React with Next.js 14+ (App Router)
 
 ## Commands
-- Dev: `npm run dev`
-- Build: `npm run build`
-- Test: `npm test`
-- Lint: `npm run lint`
+- Dev: `npm run dev` | Build: `npm run build` | Test: `npm test` | Lint: `npm run lint`
 
-## Code Conventions
-- Functional components only (no class components)
-- Use React Server Components by default, add "use client" only when needed
-- State management: React Context + hooks (no Redux)
-- Styling: Tailwind CSS with `cn()` utility for conditional classes
-- File naming: PascalCase for components, kebab-case for utilities
-- Co-locate tests: `Component.test.tsx` next to `Component.tsx`
+## Conventions
+- Functional components only | Server Components by default, "use client" when needed
+- Tailwind CSS with `cn()` | PascalCase components | Co-locate tests next to components
 
-## Project Structure
-- `app/` — Next.js App Router pages and layouts
-- `components/` — Reusable UI components
-- `components/ui/` — Base design system components
-- `lib/` — Utility functions and shared logic
-- `hooks/` — Custom React hooks
+## Structure
+- `app/` — Pages/layouts | `components/` — UI | `lib/` — Utils | `hooks/` — Custom hooks
 ```
 
 ## Template 5: Monorepo
