@@ -145,28 +145,21 @@ write a polite response explaining why in-memory limiting suffices here.
 
 ---
 
-## Contribution Checklist
+## Checklist and Pitfalls
 
 | Step | Action |
 |------|--------|
 | Read CONTRIBUTING.md | Understand guidelines before coding |
-| Check existing patterns | Match the project's style, not yours |
+| Match existing patterns | Use the project's style, not yours |
 | Run tests locally | Never submit a PR with failing tests |
-| Update documentation | If the project expects it for new features |
 | Write a clear PR description | Reference the issue, explain what and why |
 | Respond to reviews promptly | Address feedback within a few days |
-
----
-
-## Common Pitfalls
 
 | Pitfall | How to Avoid |
 |---------|-------------|
 | Ignoring conventions | Ask Claude to check CONTRIBUTING.md first |
 | Over-engineering | Match the complexity of existing code |
-| No tests | Ask Claude to identify required coverage |
 | Unfocused PRs | Keep changes scoped to one issue |
-| Skipping local CI | Run `claude -p "Run the CI checks"` before pushing |
 
 ---
 
