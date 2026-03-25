@@ -60,23 +60,19 @@ session creation and show the key files.
 ## Step 3: Finding Issues to Work On
 
 ```
-Read CONTRIBUTING.md and summarize the contribution guidelines.
-What labels should I look for on issues?
+Read CONTRIBUTING.md and summarize the guidelines. What issue labels
+should I look for as a first-time contributor?
 ```
 
-Use the GitHub CLI to find suitable issues:
+Find and assess an issue:
 
 ```bash
 gh issue list --label "good first issue" --state open
-gh issue view 42
 ```
-
-Assess the issue with Claude Code:
 
 ```
 I want to work on issue #42: "Add rate limiting to /api/search."
-Look at the current implementation and tell me what changes are needed.
-Are there existing rate limiting patterns in this codebase?
+What changes are needed? Are there existing rate limiting patterns here?
 ```
 
 ---
@@ -106,14 +102,7 @@ and do not break anything. Update docs if the project requires it.
 
 ## Step 5: Creating a Quality PR
 
-Study the project's PR conventions:
-
-```
-Look at the last 5 merged PRs using gh. What format do they use for
-titles and descriptions? Draft a PR title and body for my changes.
-```
-
-Create the PR:
+Study the project's PR conventions with `Look at the last 5 merged PRs. Draft a title and body for my changes.` Then create the PR:
 
 ```bash
 git push -u origin fix/rate-limit-search-endpoint
