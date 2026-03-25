@@ -17,25 +17,18 @@ Claude Code's headless mode and SDK make it a powerful component in CI/CD pipeli
 Run Claude Code non-interactively in pipeline environments:
 
 ```bash
-# Basic headless execution
 claude -p "Run the test suite and summarize any failures"
-
-# JSON output for programmatic parsing
-claude -p "List all TODO comments in the codebase" --output-format json
-
-# Limit turns to prevent runaway sessions
-claude -p "Fix the failing test in src/api/tasks.test.ts" --max-turns 10
-
-# Pre-authorize tools
-claude -p "Refactor utils.ts to use async/await" --allowedTools "Edit,Read,Bash"
+claude -p "List all TODO comments" --output-format json
+claude -p "Fix the failing test in tasks.test.ts" --max-turns 10
+claude -p "Refactor utils.ts" --allowedTools "Edit,Read,Bash"
 ```
 
 | Flag | Purpose |
 |------|---------|
-| `-p` | Print mode, non-interactive output to stdout |
+| `-p` | Non-interactive, output to stdout |
 | `--output-format json` | Structured output for scripting |
-| `--max-turns 10` | Prevents infinite loops and cost spikes |
-| `--allowedTools` | Skips interactive permission prompts |
+| `--max-turns N` | Prevents infinite loops and cost spikes |
+| `--allowedTools` | Skips permission prompts |
 
 ---
 
